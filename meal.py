@@ -123,9 +123,8 @@ def list_meals(data_file):
         print("No meals found")
     else:
         for i, item in enumerate(data, 1):
-            # Support both formats: new (timestamp/content) and old (date/meal)
-            timestamp = item.get('timestamp') or item.get('date') or 'unknown date'
-            content = item.get('content') or item.get('meal') or 'unknown meal'
+            timestamp = item.get('timestamp')
+            content = item.get('content')
             print(f"{i}. {timestamp} - {content}")
 
 def delete_meal(index, data_file):
@@ -133,8 +132,18 @@ def delete_meal(index, data_file):
     if 0 < index <= len(data):
         removed = data.pop(index - 1)
         save_file(data, data_file)
-        meal_name = removed.get('content') or removed.get('meal') or 'unknown meal'
+        meal_name = removed.get('content') 
         print(f"Deleted meal {index}: {meal_name}")
+    else:
+        print("Invalid meal number")
+
+def delete_suggestion(index, suggestion_file):
+    data = load_file(suggestion_file)
+    if 0 < index <= len(data):
+        removed = data.pop(index - 1)
+        save_file(data, suggestion_file)
+        meal_name = removed.get('content') 
+        print(f"Deleted suggestion meal {index}: {meal_name}")
     else:
         print("Invalid meal number")
 
@@ -204,7 +213,7 @@ def list_suggestions(suggestion_file):
         print("No suggestions found.")
     else:
         for i, s in enumerate(suggestions, 1):
-            print(f"{i}. {s.get('content', 'unknown')}")
+            print(f"{i}. {s.get('content')}")
 
 def main():
     parser = argparse.ArgumentParser(description="Meal Tracker CLI")
@@ -223,6 +232,9 @@ def main():
 
     delete_parser = subparsers.add_parser("delete", help="Delete a meal by number")
     delete_parser.add_argument("index", type=int, help="Meal number to delete")
+
+    delete_suggestion_parser = subparsers.add_parser("deletesuggestion", help="Delete a meal by number from suggestion")
+    delete_suggestion_parser.add_argument("index", type=int, help="Meal number to delete")
 
     subparsers.add_parser("deleteall", help="Delete all meals")
     subparsers.add_parser("restore", help="Restore from backup")
@@ -245,6 +257,8 @@ def main():
         list_meals(data_file)
     elif args.command == "delete":
         delete_meal(args.index, data_file)
+    elif args.command == "deletesuggestion":
+        delete_suggestion(args.index, suggestion_file)        
     elif args.command == "deleteall":
         delete_all(data_file)
     elif args.command == "restore":
